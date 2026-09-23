@@ -104,3 +104,5 @@ class Reservasi:
             return f"Meja {nomor_meja} tersedia !"
 
         return f"Meja {nomor_meja} tidak ada ! (Nomor Meja hanya tersedia 1-50)"
+
+# Uji coba
