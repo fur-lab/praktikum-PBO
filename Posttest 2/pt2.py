@@ -1,7 +1,7 @@
 class Restoran:
     nama_restoran = "Vintage Restaurant"
 
-    def __init__(self, nama_cabang, alamat, kas_restoran, daftar_menu ):
+    def __init__(self, nama_cabang, alamat, kas_restoran):
         self.nama_cabang = nama_cabang
         self.alamat = alamat
         self.__kas_restoran = kas_restoran
@@ -34,17 +34,26 @@ class Restoran:
         else:
             return "Restoran sedang tutup !"
 
+    
+    def tambahkan_menu(self, menu):
+        self.daftar_menu.append(menu)
+        print(f"Menu {menu.nama_menu} berhasil ditambahkan!")
+
+    def tampilkan_semua_menu(self):
+        for i in self.daftar_menu:
+            i.tampilkan_info()
+
 class Menu:
     total_menu = 0
 
     def __init__(self, nama_menu, kategori_menu, harga_menu):
         self.nama_menu = nama_menu
         self.kategori_menu = kategori_menu
-        self.__harga_menu = harga_menu
+        self._harga_menu = harga_menu
         Menu.total_menu += 1
 
     def tampilkan_menu(self):
-        print(f"Menu : {self.nama_menu} | Kategori : {self.kategori_menu} | Harga : {self.__harga_menu}")
+        print(f"Menu : {self.nama_menu  } | Kategori : {self.kategori_menu} | Harga : {self._harga_menu}")
 
     @classmethod
     def dari_dict(cls, data):
@@ -52,14 +61,14 @@ class Menu:
 
     @property
     def harga(self):
-        return self.__harga_menu
+        return self._harga_menu
 
     @harga.setter
     def harga(self, harga_baru):
         if harga_baru < 0:
             raise ValueError("Harga harus bernilai positf !")
 
-        self.__harga_menu = harga_baru
+        self._harga_menu = harga_baru
 
     @staticmethod   
     def diskon(total_pembelian):
@@ -69,17 +78,13 @@ class Menu:
 
         return total_pembelian
 
-    def tambahkan_menu(self, menu):
-        self.menu = menu
-        self.daftar
-
 class Makanan(Menu):
     def __init__(self, nama_menu, kategori_menu, harga_menu, tingkat_pedas):
         super().__init__(nama_menu, kategori_menu, harga_menu)
         self.tingkat_pedas = tingkat_pedas 
 
     def tampilkan_info(self):
-        print(f"Menu : {self.nama_menu} | Kategori : {self.kategori_menu} | Harga : {self.harga} | Tingkat Kepedasan : {self.tingkat_pedas}")
+        print(f"Menu : {self.nama_menu} | Kategori : {self.kategori_menu} | Harga : {self._harga_menu} | Tingkat Kepedasan : {self.tingkat_pedas}")
 
 class Minuman(Menu):
     def __init__(self, nama_menu, kategori_menu, harga_menu, ukuran_gelas):
@@ -87,21 +92,26 @@ class Minuman(Menu):
         self.ukuran_gelas = ukuran_gelas
 
     def tampilkan_info(self):
-        print(f"Menu : {self.nama_menu} | Kategori : {self.kategori_menu} | Harga : {self.harga} | Ukuran : {self.ukuran_gelas}")
+        print(f"Menu : {self.nama_menu} | Kategori : {self.kategori_menu} | Harga : {self._harga_menu} | Ukuran : {self.ukuran_gelas}")
 
+
+class Meja:
+    def __init__(self, nomor_meja, kapasitas):
+        self.nomor_meja = nomor_meja
+        self.kapasitas = kapasitas
 
 class Reservasi:
     total_reservasi = 0
 
-    def __init__(self, nama_reservasi, nomor_meja, jumlah_orang, status="Pending"):
+    def __init__(self, nama_reservasi, nomor_meja, jumlah_orang, kapasitas_meja = 4, status="Pending"):
         self.nama_reservasi = nama_reservasi
-        self.nomor_meja = nomor_meja
         self.jumlah_orang = jumlah_orang
         self.__status = status
+        self.detail_meja = Meja(nomor_meja, kapasitas_meja)
         Reservasi.total_reservasi += 1
 
     def tampilkan_reservasi(self):
-        print(f"Nama reservasi : {self.nama_reservasi} | Meja : {self.nomor_meja} | Jumlah orang : {self.jumlah_orang} | status : {self.__status}")
+        print(f"Nama reservasi : {self.nama_reservasi} | Meja : {self.detail_meja.nomor_meja} | Jumlah orang : {self.jumlah_orang} | status : {self.__status}")
 
     @classmethod
     def dari_dict(cls, data):
@@ -126,5 +136,31 @@ class Reservasi:
 
         return f"Meja {nomor_meja} tidak ada ! (Nomor Meja hanya tersedia 1-50)"
 
+class Pelanggan:
+    def __init__(self, nama, no_hp):
+        self.nama = nama
+        self.no_hp = no_hp
+
+    def buat_reservasi(self, reservasi):
+        print("======= DETAIL RESERVASI ========")
+        print(f"Nama       : {self.nama}")
+        print(f"No.Hp      : {self.no_hp}")
+        print(f"Nomor Meja : {reservasi.detail_meja.nomor_meja}")
+        print(f"Kapasitas : {reservasi.detail_meja.kapasitas} orang")
+
+# Overiding
+cabang1 = Restoran("Vintage", "Jl.Juanda", 50000000)
 seblak = Makanan("Seblak", "Makanan", 150000, 5)
 seblak.tampilkan_info()
+
+# Agregasi
+cabang1.tambahkan_menu(seblak)
+cabang1.tampilkan_semua_menu()
+
+# Komposisi
+res1 = Reservasi("Rafli", 13, 2, 2)
+print(f"Nama : {res1.nama_reservasi} | Nomor Meja : {res1.detail_meja.nomor_meja} | Kapasitas : {res1.detail_meja.kapasitas} | Total Reservasi : {Reservasi.total_reservasi}")
+
+# Asosiasi
+p1 = Pelanggan("Rafli", 000)
+p1.buat_reservasi(res1)
